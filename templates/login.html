@@ -1,0 +1,20 @@
+<!--The line below tells the file to copy from the base.html  -->
+{%extends 'base.html'%}
+
+<!-- Using the block head. It takes whatever is here, and places it on the base.html 
+    to generate the page's head. -->
+{% block head%} 
+
+
+<title>User Login</title> 
+
+{% endblock %}
+
+
+<!-- Using the block body. It takes whatever is here, and places it on the base.html to 
+    generate the page's body. -->
+{% block body%}
+
+<p>This is where you log in</p> 
+
+{% endblock %}
