@@ -1,0 +1,18 @@
+{% extends 'layout.html' %}
+
+{% block title %}Profile{% endblock %}
+
+{% block content %}
+<h2>Upload Books</h2>
+<div>
+    <form {{ url_for('upload') }}" method="POST"
+        enctype="multipart/form-data">
+        <input type="file" name="file" />
+
+        <input type="submit" value="Upload">
+    
+    </form>
+
+</div>
+
+{% endblock %}
