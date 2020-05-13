@@ -12,7 +12,7 @@ app.secret_key = 'te amo'
 
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = '19842hackdway'
+app.config['MYSQL_PASSWORD'] = 'root'
 app.config['MYSQL_DB'] = 'pythonlogin'
 
 mysql = MySQL(app)
