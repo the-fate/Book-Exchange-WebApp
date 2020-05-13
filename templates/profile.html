@@ -21,4 +21,13 @@
         </tr>
     </table>
 </div>
+<div>
+    <form action="{{ url_for('upload') }}" method="POST"
+        enctype="multipart/form-data">
+        <input type="file" name="bookFile" />
+        <input type="submit" value="Upload">
+        <p>{{ msg }}</p>
+
+</div>
+
 {% endblock %}

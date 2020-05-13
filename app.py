@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 from flask_mysqldb import MySQL
+from werkzeug import secure_filename
 import MySQLdb.cursors
 import re
 
@@ -11,7 +12,7 @@ app.secret_key = 'te amo'
 
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = ''
+app.config['MYSQL_PASSWORD'] = '19842hackdway'
 app.config['MYSQL_DB'] = 'pythonlogin'
 
 mysql = MySQL(app)
@@ -24,6 +25,7 @@ def home():
         
         return render_template('home.html', username=session['username'])
     return redirect(url_for('login'))
+
 
 
 @app.route('/login/', methods=['GET', 'POST'])
@@ -55,11 +57,6 @@ def login():
             # Account doesnt exist or username/password incorrect
             msg = 'Incorrect'
 
-
-
-    
-
-
     return render_template('login.html', msg='')
 
 @app.route('/logout')
@@ -70,6 +67,7 @@ def logout():
     session.pop('username', None)
     # Redirect to login page
     return redirect(url_for('login'))
+
 
 @app.route('/register', methods=['GET','POST'])
 def register():
@@ -105,9 +103,9 @@ def register():
     return render_template('register.html', msg=msg)
 
 
-
 @app.route('/profile')
 def profile():
+
     # Check if user is logged in
     if 'loggedin' in session:
         # WE need all the account info
@@ -122,26 +120,36 @@ def profile():
 
 
 # This is for the book upload page
-@app.route('/upload')
+@app.route('/upload', methods=["POST","GET"])
 def upload():
-    # Check if user is logged in
-    if 'loggedin' in session:
+    cursor = mysql.connection.cursor()
+    if not 'loggedin' in session:
+        return redirect(url_for('login'))
+
+    # Saves the upload file in the form to a 'file' variable
+    bookUpload = request.files['bookFile']
+
+    # Regex is used to check if the file type is epub,pdf or mobi
+    if not re.search(r'((\.epub)$)|((\.pdf)$)|((\.mobi)$)', bookUpload.filename):
+        return "Invalid Filetype. Please upload pdf or epub files"
+
+    try:
+        # Insert the binary Data into the Database
         cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-        cursor.execute('SELECT * FROM accounts WHERE id = %s', (session['id'],))
-        account = cursor.fetchone()
+        cursor.execute('INSERT INTO books VALUES (NULL, %s, %s)', (bookUpload, session['username']))
+        mysql.connection.commit()
+        return render_template('library.html', msg='Upload successful')
+    except mysql.connector.Error as error:
+        return render_template('library.html', msg='Upload successful')
 
-        return render_template('upload.html', account = account)
+# This is the library Page
+@app.route('/library')
+def library(msg=''):
+    if not 'loggedin' in session:
+        return redirect(url_for('login'))
 
-    # I'd like to send a 'You need to log in to upload' message, but I don't know how to do that.
-    # I'm just sending to the login page
-    return redirect(url_for('login'))
+    return render_template('library.html', msg=msg)
 
-@app.route('/uploader', methods = ['GET', 'POST'])
-def upload_file():
-   if request.method == 'POST':
-      f = request.files['file']
-      f.save(secure_filename(f.filename))
-      return 'file uploaded successfully'
 
 if __name__ == '__main__':
     app.run(debug=True)
